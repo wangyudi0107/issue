@@ -1,0 +1,122 @@
+<!-- 连接头部文件 -->
+{include file='public/header'}
+<!-- 连接头部文件 -->
+<button type="button" class="layui-btn layui-btn-sm layui-btn" style="margin-top: 3px;" onclick="add();">
+	<i class="layui-icon layui-icon-addition"></i>
+</button>
+<!-- 正文 -->
+<table class="layui-table">
+	<colgroup>
+		<col width="50">
+		<col width="">
+		<col width="100">
+		<col width="100">
+		<col width="100">
+		<col width="100">
+		<col width="100">
+		<col width="150">
+	</colgroup>
+	<thead>
+		<tr>
+			<th>
+				<div class="layui-table-cell content">ID</div>
+			</th>
+			<th>
+				<div class="layui-table-cell content">红包名称</div>
+			</th>
+			<th>
+				<div class="layui-table-cell content">红包金额</div>
+			</th>
+			<th>
+				<div class="layui-table-cell content">红包数量</div>
+			</th>
+			<th>
+				<div class="layui-table-cell content">剩余金额</div>
+			</th>
+			<th>
+				<div class="layui-table-cell content">剩余数量</div>
+			</th>
+			<th>
+				<div class="layui-table-cell content">状态</div>
+			</th>
+			<th>
+				<div class="layui-table-cell content">操作</div>
+			</th>
+		</tr>
+		</thead>
+		<tbody>
+		{volist name='intro' id='in'}
+		<tr>
+			<td>
+				<div class="layui-table-cell content">{$in.id}</div>
+			</td>
+			<td>
+				<div class="layui-table-cell content">{$in.name}</div>
+			</td>
+			<td>
+				<div class="layui-table-cell content">{$in.money/100}元</div>
+			</td>
+			<td>
+				<div class="layui-table-cell content">{$in.sum}</div>
+			</td>
+			<td>
+				<div class="layui-table-cell content">{$in.residual_amount/100}元</div>
+			</td>
+			<td>
+				<div class="layui-table-cell content">{$in.residual_num}</div>
+			</td>
+			<td>
+				<div class="layui-table-cell content">
+				{if condition='$in.status==1'}正在派发
+				{elseif condition='$in.status==2'}已发完
+				{elseif condition='$in.status==3'}活动待开始
+				{else}活动已结束{/if}
+				</div>
+			</td>
+			<td>
+				<div class="layui-table-cell content">
+					<button type="button" class="layui-btn layui-btn-sm layui-btn-danger">
+						<i class="layui-icon"></i>
+					</button>
+					<button type="button" class="layui-btn-sm layui-btn" style="margin-left: 5%;" onclick="pack_delete({$in.id})">
+						<i class="layui-icon"></i>
+					</button>
+				</div>
+			</td>
+		</tr>
+		{/volist}
+	</tbody>
+</table>
+<!-- 正文 -->
+<script type="text/javascript">
+	function pack_delete(id) {
+		layer.msg('确定删除这条用户信息么？', {
+			time: 0, //不自动关闭
+			btn: ['是的', '取消'],
+			yes: function(index) {
+				layer.close(index); //关闭当前窗口
+				$.ajax({
+					type: 'post',
+					url: "{:url('admin/issue/pack_del')}",
+					dataType: 'JSON', //和控制器转换对应
+					data: {
+						id: id,
+					},
+					success: function(data) {
+						layer.msg('删除成功');
+						setTimeout(function() {
+							location.reload();
+						}, 1500);
+					},
+					error: function() {
+						layer.msg('删除失败');
+					}
+				});
+			}
+		});
+	}
+</script>
+<!-- 连接底部文件 -->
+{include file='public/footer'}
+<!-- 连接底部文件 -->
+

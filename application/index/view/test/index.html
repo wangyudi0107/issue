@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script src="__STATIC__/js/jquery-3.4.1.js" type="text/javascript" charset="utf-8"></script>
+	</head>
+	<body>
+		剩余金额：<input type="text" name="money" id="money" value="" placeholder="金额"/><br>
+		剩余数量：<input type="text" name="num" id="num" value="" placeholder="数量"/><br>
+		<button type="button" onclick="bag()">抢红包</button>
+	</body>
+	<script type="text/javascript">
+		function bag(){
+			var money = $('#money').val();
+			var num = $('#num').val();
+			if(money==''&&num==''){
+				alert('不得为空');
+			}else{
+				$.ajax({
+					type: 'post',
+					url: "{:url('index/test/bag')}",
+					dataType: 'JSON', //和控制器转换对应
+					data: {
+						money: money,
+						num: num,
+					},
+					success: function(data) {
+						if(data.status==0){
+							alert('红包抢完了')
+						}else if(data.status==2){
+							alert('每个红包金额不得小于0.3元');
+						}else{
+							console.log(data);
+							$('#money').val(data.data['money']);
+							$('#num').val(data.data['num']);
+						}
+					},
+				});
+			}
+		}
+	</script>
+</html>

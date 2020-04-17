@@ -1,0 +1,192 @@
+<!-- 连接头部文件 -->
+{include file='public/header'}
+<!-- 连接头部文件 -->
+
+<!-- 正文 -->
+
+<!-- 表头搜索开始 -->
+<form class="layui-form" action="{:url('admin/issue/index')}" method="get">
+	<div class="layui-form-item">
+		<div class="layui-input-block" style="margin-left: 0;background-color: #F6F6F6;padding: 3px;">
+			<div class="layui-input-inline">
+				<input type="text" name="tittle" id="tittle" autocomplete="off" placeholder="查询题目信息" class="layui-input">
+			</div>
+			<button type="submit" class="layui-btn layui-btn-sm" lay-submit="" lay-filter="" style="margin-top: 3px;"><i class="layui-icon layui-icon-ok"style="margin-right: 0;"></i></button>
+			<a href="{:url('admin/issue/index')}">
+				<button type="button" class="layui-btn layui-btn-sm layui-btn-warm" style="margin-top: 3px;"><i class="layui-icon layui-icon-refresh" style="margin-right: 0;"></i></button>
+			</a>
+				<button type="button" class="layui-btn layui-btn-sm layui-btn-danger" style="margin-top: 3px;" onclick="edit();"><i class="layui-icon layui-icon-addition"></i></button>
+		</div>
+	</div>
+</form>
+<!-- 表头搜索结束 -->
+
+<table class="layui-table">
+	<colgroup>
+		<col width="50">
+		<col width="350">
+		<col width="">
+		<col width="50">
+		<col width="150">
+	</colgroup>
+	<thead>
+		<tr>
+			<th>
+				<div class="layui-table-cell content">ID</div>
+			</th>
+			<th>
+				<div class="layui-table-cell content">题目</div>
+			</th>
+			<th>
+				<div class="layui-table-cell content">选项</div>
+			</th>
+			<th>
+				<div class="layui-table-cell content">正确选项</div>
+			</th>
+			<th>
+				<div class="layui-table-cell content">操作</div>
+			</th>
+		</tr>
+		</thead>
+		<tbody>
+		{volist name='intro' id='in'}
+		<tr>
+			<td>
+				<div class="layui-table-cell content">{$in.id}</div>
+			</td>
+			<td>
+				<div class="layui-table-cell content">{$in.issue}</div>
+			</td>
+			<td>
+				<div class="layui-table-cell content">{$in.option}</div>
+			</td>
+			<td>
+				<div class="layui-table-cell content">{$in.true_option}</div>
+			</td>
+			<td>
+				<div class="layui-table-cell content">
+					<button type="button" class="layui-btn layui-btn-sm layui-btn-danger" onclick='insert({$in.id})'>
+						<i class="layui-icon"></i>
+					</button>
+					<button type="button" class="layui-btn-sm layui-btn" style="margin-left: 5%;" onclick="issue_delete({$in.id})">
+						<i class="layui-icon"></i>
+					</button>
+				</div>
+			</td>
+		</tr>
+		{/volist}
+	</tbody>
+</table>
+<div>{$page}</div>
+
+<!-- 正文 -->
+<script type="text/javascript">
+	
+function issue_delete(id) {
+	layer.msg('确定删除这条题目么？', {
+		time: 0, //不自动关闭
+		btn: ['是的', '取消'],
+		yes: function(index) {
+			layer.close(index); //关闭当前窗口
+			$.ajax({
+				type: 'post',
+				url: "{:url('admin/issue/issue_del')}",
+				dataType: 'JSON', //和控制器转换对应
+				data: {
+					id: id,
+				},
+				success: function(data) {
+					layer.msg('删除成功');
+					setTimeout(function() {
+						location.reload();
+					}, 1500);
+				},
+				error: function() {
+					layer.msg('删除失败');
+				}
+			});
+		}
+	});
+}
+
+function edit(){
+	//页面层
+	layer.open({
+	  type: 1,
+	  skin: 'layui-layer-rim', //加上边框
+	  area: ['660px', '450px'], //宽高
+	  content: '<form  method="post" style="margin: 15px;" class="layui-form" id="issue_form">'+
+	  '<div class="layui-form-item" style="margin-bottom: 15px;"><label class="layui-form-label">题目内容：</label><div class="layui-input-block"><input type="text" name="issue" required lay-verify="required" placeholder="题目" autocomplete="off" class="layui-input price_form"/></div></div>'+
+	  '<div id="option"><div class="layui-form-item" style="margin:0 0 15px 25px;"><label class="layui-form-label">A</label><div class="layui-input-block"><input type="text" name="option" required lay-verify="required" placeholder="输入选项1" autocomplete="off" class="layui-input price_form"/></div></div><div class="layui-form-item" style="margin:0 0 15px 25px;"><label class="layui-form-label">B</label><div class="layui-input-block"><input type="text" name="option" required lay-verify="required" placeholder="输入选项2" autocomplete="off" class="layui-input price_form"/></div></div></div>'+
+	  '<div class="layui-form-item" style="margin:0 0 15px 25px;"><label class="layui-form-label">正确选项：</label><div class="layui-input-inline"><input type="text" id="true" required lay-verify="required" placeholder="输入正确答案" autocomplete="off" class="layui-input price_form"/></div></div>'+
+	  '<div class="layui-form-item"><div class="layui-input-block"><button type="button" class="layui-btn " onclick="add_option()">增加选项</button><button type="button" class="layui-btn" onclick="del_option()">减少选项</button><button type="button" class="layui-btn " onclick="commit()">提交</button><button type="reset" class="layui-btn layui-btn-primary">重置</button></div></div>'+
+	  '</form>',
+	});
+}
+
+function insert(id){
+	edit();
+	layer.msg(id);
+}
+
+var option_num = new Array('A', 'B', 'C', 'D', 'E', 'F');
+
+function commit(){
+	var issue = $("#issue_form input[name='issue']:eq(0)").val();
+	var option_arr = $("#issue_form input[name='option']");
+	var true_option = $("#true").val();
+	var option="";
+	for(var i = 0;i<option_arr.length;i++){
+		if( $("#issue_form input[name='option']:eq("+i+")").val()==''){
+			layer.msg('请输入完整信息！', function(){});
+			return false;
+		}else{
+			option += option_num[i] + ". " + $("#issue_form input[name='option']:eq("+i+")").val() + ",";
+		}
+	}
+	console.log(issue,option,true_option);
+	$.ajax({
+		type: 'post',
+		url: "{:url('admin/issue/issue_add')}",
+		dataType: 'JSON', //和控制器转换对应
+		data: {
+			issue: issue,
+	 	option:option,
+	 	true_option:true_option,
+		},
+		success: function(data) {
+			layer.msg(data.msg);
+			setTimeout(function() {
+				location.reload();
+			}, 1500);
+		},
+		error: function() {
+			layer.msg('失败');
+		}
+	});
+	
+}
+
+function add_option(){
+	var option_arr = $("#issue_form input[name='option']").length;
+	if(option_arr>=option_num.length){
+		layer.msg('选项过多');
+	}else{
+		var option = '<div class="layui-form-item" style="margin:0 0 15px 25px;"><label class="layui-form-label">'+option_num[option_arr]+'</label><div class="layui-input-block"><input type="text" name="option" required lay-verify="required" placeholder="输入选项'+(option_arr+1)+'" autocomplete="off" class="layui-input price_form"/></div></div>'
+		$("#option").append(option);
+	}
+}
+
+function del_option(){
+	var option_arr = $("#issue_form input[name='option']").length;
+	if(option_arr<=2){
+		layer.msg('选项过少，不能减少');
+	}else{
+		$("#issue_form .layui-form-item:eq("+option_arr+")").remove();
+	}
+}
+
+</script>
+<!-- 连接底部文件 -->
+{include file='public/footer'}
+<!-- 连接底部文件 -->

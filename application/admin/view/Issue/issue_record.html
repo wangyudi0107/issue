@@ -1,0 +1,130 @@
+<!-- 连接头部文件 -->
+{include file='public/header'}
+<!-- 连接头部文件 -->
+
+<!-- 正文 -->
+<!-- 表头搜索开始 -->
+<form class="layui-form" action="{:url('admin/issue/issue_record')}" method="get">
+	<div class="layui-form-item">
+		<div class="layui-input-block" style="margin-left: 0;background-color: #F6F6F6;padding: 3px;">
+			<div class="layui-input-inline">
+				<input type="text" name="tittle" id="tittle" autocomplete="off" placeholder="姓名" class="layui-input">
+			</div>
+			<div class="layui-input-inline">
+				<input type="text" name="tittle" id="tittle" autocomplete="off" placeholder="手机号码" class="layui-input">
+			</div>
+			<button type="submit" class="layui-btn layui-btn-sm" lay-submit="" lay-filter="" style="margin-top: 3px;"><i class="layui-icon layui-icon-ok"style="margin-right: 0;"></i></button>
+			<a href="{:url('admin/issue/issue_record')}">
+				<button type="button" class="layui-btn layui-btn-sm layui-btn-warm" style="margin-top: 3px;"><i class="layui-icon layui-icon-refresh" style="margin-right: 0;"></i></button>
+			</a>
+		</div>
+	</div>
+</form>
+<!-- 表头搜索结束 -->
+
+<table class="layui-table">
+	<colgroup>
+		<col width="50">
+		<col width="150">
+		<col width="150">
+		<col width="">
+		<col width="70">
+		<col width="70">
+		<col width="100">
+	</colgroup>
+	<thead>
+		<tr>
+			<th>
+				<div class="layui-table-cell content">ID</div>
+			</th>
+			<th>
+				<div class="layui-table-cell content">姓名</div>
+			</th>
+			<th>
+				<div class="layui-table-cell content">手机号码</div>
+			</th>
+			<th>
+				<div class="layui-table-cell content">题目id</div>
+			</th>
+			<th>
+				<div class="layui-table-cell content">得分</div>
+			</th>
+			<th>
+				<div class="layui-table-cell content">领取红包</div>
+			</th>
+			<th>
+				<div class="layui-table-cell content">操作</div>
+			</th>
+		</tr>
+		</thead>
+		<tbody>
+		{volist name='intro' id='in'}
+		<tr>
+			<td>
+				<div class="layui-table-cell content">{$in.id}</div>
+			</td>
+			<td>
+				<div class="layui-table-cell content">{$in.name}</div>
+			</td>
+			<td>
+				<div class="layui-table-cell content">{$in.phone}</div>
+			</td>
+			<td>
+				<div class="layui-table-cell content">{$in.issue_id}</div>
+			</td>
+			<td>
+				<div class="layui-table-cell content">{$in.sorce}</div>
+			</td>
+			<td>
+				<div class="layui-table-cell content">{$in.red_packet/100}元</div>
+			</td>
+			<td>
+				<div class="layui-table-cell content">
+					<!-- <a href="{:url('admin/index/show_info_change')}?id={$s.id}"> -->
+						<!-- <button type="button" class="layui-btn layui-btn-sm layui-btn-danger">
+							<i class="layui-icon"></i>
+						</button> -->
+					<!-- </a> -->
+					<button type="button" class="layui-btn-sm layui-btn" style="margin-left: 5%;" onclick="user_delete({$in.id})">
+						<i class="layui-icon"></i>
+					</button>
+				</div>
+			</td>
+		</tr>
+		{/volist}
+	</tbody>
+</table>
+<div>{$page}</div>
+
+<!-- 正文 -->
+<script type="text/javascript">
+	function user_delete(id) {
+		layer.msg('确定删除这条用户信息么？', {
+			time: 0, //不自动关闭
+			btn: ['是的', '取消'],
+			yes: function(index) {
+				layer.close(index); //关闭当前窗口
+				$.ajax({
+					type: 'post',
+					url: "{:url('admin/issue/user_del')}",
+					dataType: 'JSON', //和控制器转换对应
+					data: {
+						id: id,
+					},
+					success: function(data) {
+						layer.msg('删除成功');
+						setTimeout(function() {
+							location.reload();
+						}, 1500);
+					},
+					error: function() {
+						layer.msg('删除失败');
+					}
+				});
+			}
+		});
+	}
+</script>
+<!-- 连接底部文件 -->
+{include file='public/footer'}
+<!-- 连接底部文件 -->
