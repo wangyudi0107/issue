@@ -57,7 +57,7 @@
 				<div class="layui-table-cell content">{$in.money/100}元</div>
 			</td>
 			<td>
-				<div class="layui-table-cell content">{$in.sum}</div>
+				<div class="layui-table-cell content">{$in.num}</div>
 			</td>
 			<td>
 				<div class="layui-table-cell content">{$in.residual_amount/100}元</div>
@@ -75,7 +75,7 @@
 			</td>
 			<td>
 				<div class="layui-table-cell content">
-					<button type="button" class="layui-btn layui-btn-sm layui-btn-danger">
+					<button type="button" class="layui-btn layui-btn-sm layui-btn-danger" onclick='insert({$in.id})'>
 						<i class="layui-icon"></i>
 					</button>
 					<button type="button" class="layui-btn-sm layui-btn" style="margin-left: 5%;" onclick="pack_delete({$in.id})">
@@ -89,6 +89,7 @@
 </table>
 <!-- 正文 -->
 <script type="text/javascript">
+	
 	function pack_delete(id) {
 		layer.msg('确定删除这条用户信息么？', {
 			time: 0, //不自动关闭
@@ -115,6 +116,125 @@
 			}
 		});
 	}
+	
+	function add(){
+		//页面层
+		layer.open({
+		  type: 1,
+		  skin: 'layui-layer-rim', //加上边框
+		  area: ['660px', '450px'], //宽高
+		  content: '<form  method="post" style="margin: 15px;" class="layui-form" id="red_pack_form" lay-filter="test1"><input type="hidden" id="id" value="" />'+
+		  '<div class="layui-form-item" style="margin-bottom: 15px;"><label class="layui-form-label">活动名称：</label><div class="layui-input-block"><input type="text" name="name" required lay-verify="required" placeholder="名称" autocomplete="off" class="layui-input price_form"/></div></div>'+
+		  '<div id="content"><div class="layui-form-item" style="margin:0 0 15px 25px;"><label class="layui-form-label">发放金额：</label><div class="layui-input-inline"><input type="text" name="money" required lay-verify="required" placeholder="发放金额" autocomplete="off" class="layui-input price_form"/></div><div class="layui-form-mid layui-word-aux">以分为单位</div></div><div class="layui-form-item" style="margin:0 0 15px 25px;"><label class="layui-form-label">发放数量：</label><div class="layui-input-inline"><input type="text" name="num" required lay-verify="required" placeholder="发放数量" autocomplete="off" class="layui-input price_form"/></div></div><div class="layui-form-item" style="margin:0 0 15px 25px;"><label class="layui-form-label">剩余金额：</label><div class="layui-input-inline"><input type="text" name="residual_amount" required lay-verify="required" placeholder="剩余金额" autocomplete="off" class="layui-input price_form"/></div><div class="layui-form-mid layui-word-aux">以分为单位</div></div><div class="layui-form-item" style="margin:0 0 15px 25px;"><label class="layui-form-label">剩余数量：</label><div class="layui-input-inline"><input type="text" name="residual_num" required lay-verify="required" placeholder="剩余数量" autocomplete="off" class="layui-input price_form"/></div></div></div>'+
+		  '<div class="layui-form-item" style="margin:0 0 15px 25px;"><label class="layui-form-label">活动状态：</label><div class="layui-input-inline"><select name="status" id="status" lay-filter="status" lay-verify="required"><option value="">请选择活动状态</option><option value="1">红包派发中</option><option value="2">红包以发完</option><option value="3">活动待开始</option><option value="4">活动已结束</option></select></div></div>'+
+		  '<div class="layui-form-item"><div class="layui-input-block"><button type="button" class="layui-btn " onclick="commit()">提交</button><button type="reset" class="layui-btn layui-btn-primary">重置</button></div></div>'+
+		  '</form>',
+		});
+		layui.use('form', function(){
+		  var form = layui.form; 
+		  form.render();
+		  form.render('select');
+		  // form.on('select(status)', function (data) {
+		  //     //alert(data.value);
+		  //     console.log(data.value);
+			 //  console.log(data.elem[data.elem.selectedIndex].text);
+		  // });
+		  // $("select").val('2');
+		  // layui.form.render('select');
+		  
+		});
+	}
+	
+	function commit(){
+		var name = $("#red_pack_form input[name='name']:eq(0)").val();
+		var money = $("#red_pack_form input[name='money']:eq(0)").val();
+		var num = $("#red_pack_form input[name='num']:eq(0)").val();
+		var residual_amount = $("#red_pack_form input[name='residual_amount']:eq(0)").val();
+		var residual_num = $("#red_pack_form input[name='residual_num']:eq(0)").val();
+		var status = $("#status").val();
+		console.log(name,money,num,residual_amount,residual_num,status);
+
+		if($("#id").val()!=''){
+			$.ajax({
+				type: 'post',
+				url: "{:url('admin/issue/red_pack_change_commit')}",
+				dataType: 'JSON', //和控制器转换对应
+				data: {
+					id:$("#id").val(),
+					name: name,
+					money:money,
+					num:num,
+					residual_amount:residual_amount,
+					residual_num:residual_num,
+					status:status,
+				},
+				success: function(data) {
+					layer.msg(data.msg);
+					setTimeout(function() {
+						location.reload();
+					}, 1500);
+				},
+				error: function() {
+					layer.msg('失败');
+				}
+			});
+		}else{
+			$.ajax({
+				type: 'post',
+				url: "{:url('admin/issue/red_pack_add')}",
+				dataType: 'JSON', //和控制器转换对应
+				data: {
+					name: name,
+					money:money,
+					num:num,
+					residual_amount:residual_amount,
+					residual_num:residual_num,
+					status:status,
+				},
+				success: function(data) {
+					layer.msg(data.msg);
+					setTimeout(function() {
+						location.reload();
+					}, 1500);
+				},
+				error: function() {
+					layer.msg('失败');
+				}
+			});
+		}
+	}
+	
+	function insert(id){
+		add();
+		$.ajax({
+			type: 'post',
+			url: "{:url('admin/issue/red_pack_edit')}",
+			dataType: 'JSON', //和控制器转换对应
+			data: {
+				id: id,
+			},
+			success: function(data) {
+				console.log(data);
+				$("#red_pack_form input[name='name']:eq(0)").val(data.name);
+				$("#red_pack_form input[name='money']:eq(0)").val(data.money);
+				$("#red_pack_form input[name='num']:eq(0)").val(data.num);
+				$("#red_pack_form input[name='residual_amount']:eq(0)").val(data.residual_amount);
+				$("#red_pack_form input[name='residual_num']:eq(0)").val(data.residual_num);
+				$("select").val(data.status);
+				layui.use('form', function(){
+				  var form = layui.form; 
+				  form.render();
+				  form.render('select');
+				});
+				$("#id").val(data.id);
+			},
+			error: function() {
+				layer.msg('失败');
+			}
+		});
+	}
+	
+	
 </script>
 <!-- 连接底部文件 -->
 {include file='public/footer'}

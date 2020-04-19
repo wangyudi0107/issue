@@ -115,18 +115,53 @@ function edit(){
 	  type: 1,
 	  skin: 'layui-layer-rim', //加上边框
 	  area: ['660px', '450px'], //宽高
-	  content: '<form  method="post" style="margin: 15px;" class="layui-form" id="issue_form">'+
+	  content: '<form  method="post" style="margin: 15px;" class="layui-form" id="issue_form"><input type="hidden" id="id" value="" />'+
 	  '<div class="layui-form-item" style="margin-bottom: 15px;"><label class="layui-form-label">题目内容：</label><div class="layui-input-block"><input type="text" name="issue" required lay-verify="required" placeholder="题目" autocomplete="off" class="layui-input price_form"/></div></div>'+
 	  '<div id="option"><div class="layui-form-item" style="margin:0 0 15px 25px;"><label class="layui-form-label">A</label><div class="layui-input-block"><input type="text" name="option" required lay-verify="required" placeholder="输入选项1" autocomplete="off" class="layui-input price_form"/></div></div><div class="layui-form-item" style="margin:0 0 15px 25px;"><label class="layui-form-label">B</label><div class="layui-input-block"><input type="text" name="option" required lay-verify="required" placeholder="输入选项2" autocomplete="off" class="layui-input price_form"/></div></div></div>'+
-	  '<div class="layui-form-item" style="margin:0 0 15px 25px;"><label class="layui-form-label">正确选项：</label><div class="layui-input-inline"><input type="text" id="true" required lay-verify="required" placeholder="输入正确答案" autocomplete="off" class="layui-input price_form"/></div></div>'+
+	  '<div class="layui-form-item" style="margin:0 0 15px 25px;"><label class="layui-form-label">正确答案：</label><div class="layui-input-inline"><select name="true" id="true" lay-filter="true" lay-verify="required"><option value="">请选择正确答案</option><option value="A">A</option><option value="B">B</option></select></div></div>'+
 	  '<div class="layui-form-item"><div class="layui-input-block"><button type="button" class="layui-btn " onclick="add_option()">增加选项</button><button type="button" class="layui-btn" onclick="del_option()">减少选项</button><button type="button" class="layui-btn " onclick="commit()">提交</button><button type="reset" class="layui-btn layui-btn-primary">重置</button></div></div>'+
 	  '</form>',
+	});
+	layui.use('form', function(){
+	  var form = layui.form; 
+	  form.render();
+	  form.render('select');
 	});
 }
 
 function insert(id){
 	edit();
-	layer.msg(id);
+	$.ajax({
+		type: 'post',
+		url: "{:url('admin/issue/issue_edit')}",
+		dataType: 'JSON', //和控制器转换对应
+		data: {
+			id: id,
+		},
+		success: function(data) {
+			var option = data.option;
+			if(data.option.length>2){
+				for(var i=1;i<data.option.length-1;i++){
+					add_option();
+				}
+			}
+			var len = $("#issue_form input[name='option']").length;
+			$("#issue_form input[name='issue']:eq(0)").val(data.issue);
+			$("select").val(data.true_option);
+			layui.use('form', function(){
+			  var form = layui.form; 
+			  form.render();
+			  form.render('select');
+			});
+			$("#id").val(data.id);
+			for(var j=0;j<len;j++){
+				 $("#issue_form input[name='option']:eq("+j+")").val( option[j][1]);
+			}
+		},
+		error: function() {
+			layer.msg('失败');
+		}
+	});
 }
 
 var option_num = new Array('A', 'B', 'C', 'D', 'E', 'F');
@@ -144,27 +179,48 @@ function commit(){
 			option += option_num[i] + ". " + $("#issue_form input[name='option']:eq("+i+")").val() + ",";
 		}
 	}
-	console.log(issue,option,true_option);
-	$.ajax({
-		type: 'post',
-		url: "{:url('admin/issue/issue_add')}",
-		dataType: 'JSON', //和控制器转换对应
-		data: {
-			issue: issue,
-	 	option:option,
-	 	true_option:true_option,
-		},
-		success: function(data) {
-			layer.msg(data.msg);
-			setTimeout(function() {
-				location.reload();
-			}, 1500);
-		},
-		error: function() {
-			layer.msg('失败');
-		}
-	});
-	
+	if($("#id").val()!=''){
+		$.ajax({
+			type: 'post',
+			url: "{:url('admin/issue/issue_change_commit')}",
+			dataType: 'JSON', //和控制器转换对应
+			data: {
+				id:$("#id").val(),
+				issue: issue,
+		 	option:option,
+		 	true_option:true_option,
+			},
+			success: function(data) {
+				layer.msg(data.msg);
+				setTimeout(function() {
+					location.reload();
+				}, 1500);
+			},
+			error: function() {
+				layer.msg('失败');
+			}
+		});
+	}else{
+		$.ajax({
+			type: 'post',
+			url: "{:url('admin/issue/issue_add')}",
+			dataType: 'JSON', //和控制器转换对应
+			data: {
+				issue: issue,
+		 	option:option,
+		 	true_option:true_option,
+			},
+			success: function(data) {
+				layer.msg(data.msg);
+				setTimeout(function() {
+					location.reload();
+				}, 1500);
+			},
+			error: function() {
+				layer.msg('失败');
+			}
+		});
+	}
 }
 
 function add_option(){
@@ -174,6 +230,13 @@ function add_option(){
 	}else{
 		var option = '<div class="layui-form-item" style="margin:0 0 15px 25px;"><label class="layui-form-label">'+option_num[option_arr]+'</label><div class="layui-input-block"><input type="text" name="option" required lay-verify="required" placeholder="输入选项'+(option_arr+1)+'" autocomplete="off" class="layui-input price_form"/></div></div>'
 		$("#option").append(option);
+		var true_option = '<option value="'+option_num[option_arr]+'">'+option_num[option_arr]+'</option>';
+		$("#true").append(true_option);
+		layui.use('form', function(){
+		  var form = layui.form; 
+		  form.render();
+		  form.render('select');
+		});
 	}
 }
 
@@ -183,6 +246,12 @@ function del_option(){
 		layer.msg('选项过少，不能减少');
 	}else{
 		$("#issue_form .layui-form-item:eq("+option_arr+")").remove();
+		$("#true option:eq("+option_arr+")").remove();
+		layui.use('form', function(){
+		  var form = layui.form; 
+		  form.render();
+		  form.render('select');
+		});
 	}
 }
 
