@@ -1,0 +1,349 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>问答系统</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="__STATIC__/mui/css/mui.css" rel="stylesheet" />
+		<script src="__STATIC__/mui/js/mui.js"></script>
+		<script src="__STATIC__/js/jquery-3.4.1.js"></script>
+		<link rel="stylesheet" href="__STATIC__/layui/css/layui.css" media="all">
+		<script type="text/javascript">
+			mui.init()
+		</script>
+	</head>
+	<style>
+		.title {
+			margin: 20px 15px 10px;
+			color: #6d6d72;
+			font-size: 15px;
+		}
+
+		.oa-contact-cell.mui-table .mui-table-cell {
+			padding: 11px 0;
+			vertical-align: middle;
+		}
+
+		.oa-contact-cell {
+			position: relative;
+			margin: -11px 0;
+		}
+
+		.oa-contact-avatar {
+			width: 75px;
+		}
+
+		.oa-contact-avatar img {
+			border-radius: 50%;
+		}
+
+		.oa-contact-content {
+			width: 100%;
+		}
+
+		.oa-contact-name {
+			margin-right: 20px;
+		}
+
+		.oa-contact-name,
+		oa-contact-position {
+			float: left;
+		}
+		.mui-btn{
+			margin-left: 5%;
+			width: 90%;
+		}
+		.mui-toast-container{
+			width: 260px;
+		}
+		#answer{
+			display: none;
+		}
+		#start_answer{
+			display: block;
+			margin-top: 200px;
+		}
+		#red_pack{
+			position: fixed;
+			z-index: 999;
+			width: 200px;
+			left: 50px;
+			top: 100px;
+		}
+		#red_pack{
+			display: none;
+			opacity: 0;
+			transition: 0.5s;
+		}
+		table{
+			width: 100%;
+			text-align: center;
+		}
+		tr{
+			height: 33px;
+			border-bottom: 1px solid #c8c7cc;
+		}
+		.mui-card-content-inner{
+			padding: 5px!important;
+		}
+	</style>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<!-- <a ><i class="mui-icon mui-icon-back"></i></a> -->
+			<h1 class="mui-title">php知识点问答</h1>
+		</header>
+		<nav class="mui-bar mui-bar-tab">
+			<a class="mui-tab-item mui-active" href="#tabbar">
+				<span class="mui-icon mui-icon-home"></span>
+				<span class="mui-tab-label">首页</span>
+			</a>
+			<a class="mui-tab-item" href="#tabbar-with-contact" >
+				<span class="mui-icon mui-icon-person-filled"></span>
+				<span class="mui-tab-label">我的</span>
+			</a>
+		</nav>
+		<div class="mui-content">
+			<div id="tabbar" class="mui-control-content mui-active">
+				<input type="hidden" name="" id="this_userInfo" value="" />
+				<img id='red_pack' src="__STATIC__/img/red_pack.png" onclick="open_pack()"/>
+				<div id="answer">
+					<div class="mui-content-padded">
+						<h4 id="issue_tittle"></h4>
+					</div>
+					<div class="mui-card">
+						<input type="hidden" name="" id="true" value="" />
+						<form class="mui-input-group" id="answer_list">
+
+						</form>
+					</div>
+					<button type="button" class="mui-btn mui-btn-danger mui-btn-block" onclick="next()">下一题</button>
+				</div>
+				<div id="start_answer">
+					<button type="button" class="mui-btn mui-btn-warning mui-btn-block" onclick="start_answer()">开始答题</button>
+				</div>
+			</div>
+			<!-- **************************************************************** -->
+			<div id="tabbar-with-contact" class="mui-control-content">
+				<div class="title">{$Think.cookie.name}</div>
+				<div class="mui-card">
+					<div class="mui-card-header">答题记录</div>
+					<div class="mui-card-content">
+						<div class="mui-card-content-inner" id="issue_record">
+							<table border="0" cellspacing="0" cellpadding="0">
+								<thead>
+									<tr>
+										<th>得分</th>
+										<th>抽中</th>
+										<th>状态</th>
+										<th>时间</th>
+									</tr>
+								</thead>
+								<tbody id="record_table">
+									<tr>
+										<td>100</td>
+										<td style="color: deepskyblue;">0.55</td>
+										<td>已取</td>
+										<td>04/18 11:11</td>
+									</tr>
+								</tbody>
+								<tfoot>
+									<tr style="border: 0;height: 25px;">
+										<td colspan="4">没有更多信息了~</td>
+									</tr>
+								</tfoot>
+							</table>
+						</div>
+					</div>
+					<div class="mui-card-footer">
+						<a href="{:url('issue/index/lin_out')}"><button type="button" class="mui-btn mui-btn-danger" style="width: 100%;">退出登录</button></a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script>
+		mui.init({
+			swipeBack: true //启用右滑关闭功能
+		});
+		
+		var a = 0;
+		var issue_arr = [];
+		var sorce = 0;
+		
+		function start_answer(){
+			$.ajax({
+				type: 'post',
+				url: "{:url('issue/index/today_status')}",
+				dataType: 'JSON', //和控制器转换对应
+				data: {},
+				success: function(data) {
+					if(data.status==1){
+						mui.alert('明天再来吧', '今天已经答过！', function() {
+						});
+					}else{
+						$.ajax({
+							type: 'post',
+							url: "{:url('issue/index/get_issue')}",
+							dataType: 'JSON', //和控制器转换对应
+							data: {},
+							success: function(data) {
+								a = 0;
+								sorce = 0;
+								issue_arr=[];
+								
+								issue_arr = data.issue;
+
+								$("#start_answer").css('display','none');
+								$("#answer").css('display','block');
+								issue();
+							},
+							error: function(e) {
+								mui.toast('网络错误，请刷新页面');
+							}
+						})
+						
+						
+					}
+				},
+				error: function(e) {
+					mui.toast('网络错误，请刷新页面');
+				}
+			})
+		}
+		
+		
+		function issue() {
+			$("#issue_tittle").text(null);
+			$("#true").val(null);
+			$("#answer_list").text(null);
+
+			$("#issue_tittle").text((a + 1) + '、' + issue_arr[a].issue);
+			$("#true").val(issue_arr[a].true_option);
+			for (var i = 0; i < issue_arr[a].option.length; i++) {
+				option = '<div class="mui-input-row mui-radio mui-left"><label>' + issue_arr[a].option[i][0] + '、' + issue_arr[a].option[
+					i][1] + '</label><input name="radio1" type="radio" value="' + issue_arr[a].option[i][0] + '"></div>'
+				$("#answer_list").append(option);
+			}
+			a++
+		}
+
+
+		function next() {
+			var checkVal = $("input[name='radio1']:checked").val();
+			var trueVal = $("#true").val();
+
+			if (a < issue_arr.length) {
+				if (checkVal == trueVal) {
+					sorce++;
+					mui.alert('点击确定进入下一题', '恭喜你！回答正确！', function() {
+						issue();
+					});
+				} else {
+					mui.alert('点击确定进入下一题', '回答错误！答案是' + trueVal, function() {
+						issue();
+					});
+				}
+			} else {
+				if (checkVal == trueVal) {
+					sorce++;
+				}
+				
+				issue_id='';
+				for(var i=0;i<issue_arr.length;i++){
+					issue_id += issue_arr[i].id + ',';
+				}
+				console.log(issue_id)
+				$.ajax({
+					type: 'post',
+					url: "{:url('issue/index/insert_user_info')}",
+					dataType: 'JSON', //和控制器转换对应
+					data: {
+						issue_id:issue_id,
+						sorce:sorce*10,
+					},
+					success: function(data) {
+						$("#this_userInfo").val(data.user_info_id);
+						if(data.status==1){
+							if (sorce >= 6) {
+								mui.alert('点击确定拆红包', '本次的成绩是' + sorce * 10, function() {
+									$("#red_pack").css('display','block');
+									$("#red_pack").css('opacity',1);
+								});
+							} else {
+								mui.alert('很遗憾，没有获得抢红包机会', '本次的成绩是' + (sorce/issue_arr.length)*100 +'分', function() {
+									location.reload();
+									
+								});
+							}
+						}else{
+							mui.toast('网络错误，请重新提交');
+						}
+						
+					},
+					error: function(e) {
+						mui.toast('网络错误，请刷新页面');
+					}
+				})
+			}
+		}
+		
+		function open_pack(){
+			$.ajax({
+				type: 'post',
+				url: "{:url('issue/index/open_pack')}",
+				dataType: 'JSON', //和控制器转换对应
+				data: {
+					id:$("#this_userInfo").val(),
+				},
+				success: function(data) {
+					if(data.status == 1){
+						mui.alert('恭喜您获得现金红包', '获得' + data.get_money +'元', function() {
+							location.reload();
+						});
+					}else{
+						mui.toast(data.msg);
+					}
+				},
+				error: function(e) {
+					mui.toast('网络错误，请刷新页面');
+				}
+			})
+		}
+		
+		
+		function record(){
+			$.ajax({
+				type: 'post',
+				url: "{:url('issue/index/get_record')}",
+				dataType: 'JSON', //和控制器转换对应
+				data: {},
+				success: function(data) {
+					
+					$('#record_table').text(null);
+					var record_arr = data.data;
+					for(var i=0;i<data.data.length;i++){
+						var sorce = '<td>'+record_arr[i].sorce+'</td>';
+						var date = '<td>'+record_arr[i].date+'</td>';
+						var red_pack = '';
+						if(record_arr[i].red_packet>0){
+							red_pack = '<td style="color: deepskyblue;">'+record_arr[i].red_packet/100+'元</td><td>已领</td>'
+						}else{
+							red_pack = '<td style="color: gray;">谢谢参与</td><td style="color:red;">未领</td>'
+						}
+						
+						var record = '<tr>'+sorce+red_pack+date+'</tr>';
+						$('#record_table').append(record);
+					}
+					
+				},
+				error: function(e) {
+					mui.toast('网络错误，请刷新页面');
+				}
+			})
+		}
+		record();
+	</script>
+
+</html>
