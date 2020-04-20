@@ -117,12 +117,15 @@
 		});
 	}
 	
+	// 添加红包信息
+	// 弹出层修改
 	function add(){
 		//页面层
 		layer.open({
 		  type: 1,
 		  skin: 'layui-layer-rim', //加上边框
 		  area: ['660px', '450px'], //宽高
+		  // 弹出层内容html
 		  content: '<form  method="post" style="margin: 15px;" class="layui-form" id="red_pack_form" lay-filter="test1"><input type="hidden" id="id" value="" />'+
 		  '<div class="layui-form-item" style="margin-bottom: 15px;"><label class="layui-form-label">活动名称：</label><div class="layui-input-block"><input type="text" name="name" required lay-verify="required" placeholder="名称" autocomplete="off" class="layui-input price_form"/></div></div>'+
 		  '<div id="content"><div class="layui-form-item" style="margin:0 0 15px 25px;"><label class="layui-form-label">发放金额：</label><div class="layui-input-inline"><input type="text" name="money" required lay-verify="required" placeholder="发放金额" autocomplete="off" class="layui-input price_form"/></div><div class="layui-form-mid layui-word-aux">以分为单位</div></div><div class="layui-form-item" style="margin:0 0 15px 25px;"><label class="layui-form-label">发放数量：</label><div class="layui-input-inline"><input type="text" name="num" required lay-verify="required" placeholder="发放数量" autocomplete="off" class="layui-input price_form"/></div></div><div class="layui-form-item" style="margin:0 0 15px 25px;"><label class="layui-form-label">剩余金额：</label><div class="layui-input-inline"><input type="text" name="residual_amount" required lay-verify="required" placeholder="剩余金额" autocomplete="off" class="layui-input price_form"/></div><div class="layui-form-mid layui-word-aux">以分为单位</div></div><div class="layui-form-item" style="margin:0 0 15px 25px;"><label class="layui-form-label">剩余数量：</label><div class="layui-input-inline"><input type="text" name="residual_num" required lay-verify="required" placeholder="剩余数量" autocomplete="off" class="layui-input price_form"/></div></div></div>'+
@@ -130,31 +133,22 @@
 		  '<div class="layui-form-item"><div class="layui-input-block"><button type="button" class="layui-btn " onclick="commit()">提交</button><button type="reset" class="layui-btn layui-btn-primary">重置</button></div></div>'+
 		  '</form>',
 		});
-		layui.use('form', function(){
+		layui.use('form', function(){	//重新渲染select模块
 		  var form = layui.form; 
 		  form.render();
 		  form.render('select');
-		  // form.on('select(status)', function (data) {
-		  //     //alert(data.value);
-		  //     console.log(data.value);
-			 //  console.log(data.elem[data.elem.selectedIndex].text);
-		  // });
-		  // $("select").val('2');
-		  // layui.form.render('select');
-		  
 		});
 	}
-	
+	// 添加题红包及修改红包提交函数
 	function commit(){
+		// 获取红包及选项信息
 		var name = $("#red_pack_form input[name='name']:eq(0)").val();
 		var money = $("#red_pack_form input[name='money']:eq(0)").val();
 		var num = $("#red_pack_form input[name='num']:eq(0)").val();
 		var residual_amount = $("#red_pack_form input[name='residual_amount']:eq(0)").val();
 		var residual_num = $("#red_pack_form input[name='residual_num']:eq(0)").val();
 		var status = $("#status").val();
-		console.log(name,money,num,residual_amount,residual_num,status);
-
-		if($("#id").val()!=''){
+		if($("#id").val()!=''){		//判断是否有id，有id为更新
 			$.ajax({
 				type: 'post',
 				url: "{:url('admin/issue/red_pack_change_commit')}",
@@ -178,7 +172,7 @@
 					layer.msg('失败');
 				}
 			});
-		}else{
+		}else{		//新增红包
 			$.ajax({
 				type: 'post',
 				url: "{:url('admin/issue/red_pack_add')}",
@@ -204,6 +198,7 @@
 		}
 	}
 	
+	// 获取红包信息并赋值
 	function insert(id){
 		add();
 		$.ajax({
@@ -214,14 +209,13 @@
 				id: id,
 			},
 			success: function(data) {
-				console.log(data);
 				$("#red_pack_form input[name='name']:eq(0)").val(data.name);
 				$("#red_pack_form input[name='money']:eq(0)").val(data.money);
 				$("#red_pack_form input[name='num']:eq(0)").val(data.num);
 				$("#red_pack_form input[name='residual_amount']:eq(0)").val(data.residual_amount);
 				$("#red_pack_form input[name='residual_num']:eq(0)").val(data.residual_num);
 				$("select").val(data.status);
-				layui.use('form', function(){
+				layui.use('form', function(){		//重新渲染赋值
 				  var form = layui.form; 
 				  form.render();
 				  form.render('select');

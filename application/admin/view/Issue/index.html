@@ -8,13 +8,17 @@
 <form class="layui-form" action="{:url('admin/issue/index')}" method="get">
 	<div class="layui-form-item">
 		<div class="layui-input-block" style="margin-left: 0;background-color: #F6F6F6;padding: 3px;">
+			<!-- 题目模糊搜索信息 -->
 			<div class="layui-input-inline">
 				<input type="text" name="tittle" id="tittle" autocomplete="off" placeholder="查询题目信息" class="layui-input">
 			</div>
+			<!-- 提交查询信息 -->
 			<button type="submit" class="layui-btn layui-btn-sm" lay-submit="" lay-filter="" style="margin-top: 3px;"><i class="layui-icon layui-icon-ok"style="margin-right: 0;"></i></button>
+			<!-- 刷新页面 -->
 			<a href="{:url('admin/issue/index')}">
 				<button type="button" class="layui-btn layui-btn-sm layui-btn-warm" style="margin-top: 3px;"><i class="layui-icon layui-icon-refresh" style="margin-right: 0;"></i></button>
 			</a>
+			<!-- 添加题目 -->
 				<button type="button" class="layui-btn layui-btn-sm layui-btn-danger" style="margin-top: 3px;" onclick="edit();"><i class="layui-icon layui-icon-addition"></i></button>
 		</div>
 	</div>
@@ -109,12 +113,15 @@ function issue_delete(id) {
 	});
 }
 
+// 添加用户信息
+// 弹出层修改
 function edit(){
 	//页面层
 	layer.open({
 	  type: 1,
 	  skin: 'layui-layer-rim', //加上边框
 	  area: ['660px', '450px'], //宽高
+	  // 弹出层html
 	  content: '<form  method="post" style="margin: 15px;" class="layui-form" id="issue_form"><input type="hidden" id="id" value="" />'+
 	  '<div class="layui-form-item" style="margin-bottom: 15px;"><label class="layui-form-label">题目内容：</label><div class="layui-input-block"><input type="text" name="issue" required lay-verify="required" placeholder="题目" autocomplete="off" class="layui-input price_form"/></div></div>'+
 	  '<div id="option"><div class="layui-form-item" style="margin:0 0 15px 25px;"><label class="layui-form-label">A</label><div class="layui-input-block"><input type="text" name="option" required lay-verify="required" placeholder="输入选项1" autocomplete="off" class="layui-input price_form"/></div></div><div class="layui-form-item" style="margin:0 0 15px 25px;"><label class="layui-form-label">B</label><div class="layui-input-block"><input type="text" name="option" required lay-verify="required" placeholder="输入选项2" autocomplete="off" class="layui-input price_form"/></div></div></div>'+
@@ -122,6 +129,7 @@ function edit(){
 	  '<div class="layui-form-item"><div class="layui-input-block"><button type="button" class="layui-btn " onclick="add_option()">增加选项</button><button type="button" class="layui-btn" onclick="del_option()">减少选项</button><button type="button" class="layui-btn " onclick="commit()">提交</button><button type="reset" class="layui-btn layui-btn-primary">重置</button></div></div>'+
 	  '</form>',
 	});
+	// 更新select状态
 	layui.use('form', function(){
 	  var form = layui.form; 
 	  form.render();
@@ -129,6 +137,7 @@ function edit(){
 	});
 }
 
+// 获取题目信息赋值修改
 function insert(id){
 	edit();
 	$.ajax({
@@ -141,20 +150,22 @@ function insert(id){
 		success: function(data) {
 			var option = data.option;
 			if(data.option.length>2){
+				// 根据选项在弹出层添加选项
 				for(var i=1;i<data.option.length-1;i++){
-					add_option();
+					add_option();  //添加选项函数
 				}
 			}
-			var len = $("#issue_form input[name='option']").length;
-			$("#issue_form input[name='issue']:eq(0)").val(data.issue);
-			$("select").val(data.true_option);
-			layui.use('form', function(){
+			
+			$("#issue_form input[name='issue']:eq(0)").val(data.issue);		//赋值题目
+			$("select").val(data.true_option);		//赋值select选项
+			layui.use('form', function(){		//更新select模块状态
 			  var form = layui.form; 
 			  form.render();
 			  form.render('select');
 			});
-			$("#id").val(data.id);
-			for(var j=0;j<len;j++){
+			$("#id").val(data.id);		//赋值id
+			var len = $("#issue_form input[name='option']").length;		//获取选项长度
+			for(var j=0;j<len;j++){		//循环输出每个option内容及value
 				 $("#issue_form input[name='option']:eq("+j+")").val( option[j][1]);
 			}
 		},
@@ -163,14 +174,17 @@ function insert(id){
 		}
 	});
 }
-
+// 声明一个选项数组
 var option_num = new Array('A', 'B', 'C', 'D', 'E', 'F');
 
+// 添加题目及修改题目提交函数
 function commit(){
+	// 获取题目及选项信息
 	var issue = $("#issue_form input[name='issue']:eq(0)").val();
 	var option_arr = $("#issue_form input[name='option']");
 	var true_option = $("#true").val();
 	var option="";
+	// 循环判断选项不得为空
 	for(var i = 0;i<option_arr.length;i++){
 		if( $("#issue_form input[name='option']:eq("+i+")").val()==''){
 			layer.msg('请输入完整信息！', function(){});
@@ -179,7 +193,7 @@ function commit(){
 			option += option_num[i] + ". " + $("#issue_form input[name='option']:eq("+i+")").val() + ",";
 		}
 	}
-	if($("#id").val()!=''){
+	if($("#id").val()!=''){		//判断是否有id，有id为更新
 		$.ajax({
 			type: 'post',
 			url: "{:url('admin/issue/issue_change_commit')}",
@@ -187,8 +201,8 @@ function commit(){
 			data: {
 				id:$("#id").val(),
 				issue: issue,
-		 	option:option,
-		 	true_option:true_option,
+				option:option,
+				true_option:true_option,
 			},
 			success: function(data) {
 				layer.msg(data.msg);
@@ -200,15 +214,15 @@ function commit(){
 				layer.msg('失败');
 			}
 		});
-	}else{
+	}else{		//新增题目
 		$.ajax({
 			type: 'post',
 			url: "{:url('admin/issue/issue_add')}",
 			dataType: 'JSON', //和控制器转换对应
 			data: {
 				issue: issue,
-		 	option:option,
-		 	true_option:true_option,
+				option:option,
+				true_option:true_option,
 			},
 			success: function(data) {
 				layer.msg(data.msg);
@@ -223,16 +237,21 @@ function commit(){
 	}
 }
 
+// 添加选项函数
 function add_option(){
+	// 获取当前选项长度
 	var option_arr = $("#issue_form input[name='option']").length;
+	// 判断选项是否多于选项数组
 	if(option_arr>=option_num.length){
 		layer.msg('选项过多');
 	}else{
-		var option = '<div class="layui-form-item" style="margin:0 0 15px 25px;"><label class="layui-form-label">'+option_num[option_arr]+'</label><div class="layui-input-block"><input type="text" name="option" required lay-verify="required" placeholder="输入选项'+(option_arr+1)+'" autocomplete="off" class="layui-input price_form"/></div></div>'
-		$("#option").append(option);
+		// 选项输入框内容
+		var option = '<div class="layui-form-item" style="margin:0 0 15px 25px;"><label class="layui-form-label">'+option_num[option_arr]+'</label><div class="layui-input-block"><input type="text" name="option" required lay-verify="required" placeholder="输入选项'+(option_arr+1)+'" autocomplete="off" class="layui-input price_form"/></div></div>';
+		$("#option").append(option);		//添加输入框
+		// 正确答案选项增加
 		var true_option = '<option value="'+option_num[option_arr]+'">'+option_num[option_arr]+'</option>';
-		$("#true").append(true_option);
-		layui.use('form', function(){
+		$("#true").append(true_option);		//添加正确答案下拉狂
+		layui.use('form', function(){		//更新form表单状态
 		  var form = layui.form; 
 		  form.render();
 		  form.render('select');
@@ -240,11 +259,15 @@ function add_option(){
 	}
 }
 
+// 删除选项函数
 function del_option(){
+	// 获取当前选项长度
 	var option_arr = $("#issue_form input[name='option']").length;
+	// 判断选项是否过少
 	if(option_arr<=2){
 		layer.msg('选项过少，不能减少');
 	}else{
+		// 获取最后一个输入框删除、获取最后一个正确答案下拉选择框删除
 		$("#issue_form .layui-form-item:eq("+option_arr+")").remove();
 		$("#true option:eq("+option_arr+")").remove();
 		layui.use('form', function(){

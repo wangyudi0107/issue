@@ -7,13 +7,17 @@
 <form class="layui-form" action="{:url('admin/issue/issue_record')}" method="get">
 	<div class="layui-form-item">
 		<div class="layui-input-block" style="margin-left: 0;background-color: #F6F6F6;padding: 3px;">
+			<!-- 姓名 -->
 			<div class="layui-input-inline">
-				<input type="text" name="tittle" id="tittle" autocomplete="off" placeholder="姓名" class="layui-input">
+				<input type="text" name="name" id="name" autocomplete="off" placeholder="姓名" class="layui-input">
 			</div>
+			<!-- 手机号码 -->
 			<div class="layui-input-inline">
-				<input type="text" name="tittle" id="tittle" autocomplete="off" placeholder="手机号码" class="layui-input">
+				<input type="text" name="phone" id="phone" autocomplete="off" placeholder="手机号码" class="layui-input">
 			</div>
+			<!-- 提交查找信息 -->
 			<button type="submit" class="layui-btn layui-btn-sm" lay-submit="" lay-filter="" style="margin-top: 3px;"><i class="layui-icon layui-icon-ok"style="margin-right: 0;"></i></button>
+			<!-- 刷新页面 -->
 			<a href="{:url('admin/issue/issue_record')}">
 				<button type="button" class="layui-btn layui-btn-sm layui-btn-warm" style="margin-top: 3px;"><i class="layui-icon layui-icon-refresh" style="margin-right: 0;"></i></button>
 			</a>
@@ -87,11 +91,12 @@
 			</td>
 			<td>
 				<div class="layui-table-cell content">
-					<!-- <a href="{:url('admin/index/show_info_change')}?id={$s.id}"> -->
-						<!-- <button type="button" class="layui-btn layui-btn-sm layui-btn-danger">
+					<!-- <a href="{:url('admin/index/show_info_change')}?id={$s.id}">
+						<button type="button" class="layui-btn layui-btn-sm layui-btn-danger">
 							<i class="layui-icon"></i>
-						</button> -->
-					<!-- </a> -->
+						</button>
+					</a> -->
+					<!-- 删除信息按钮 -->
 					<button type="button" class="layui-btn-sm layui-btn" style="margin-left: 5%;" onclick="user_delete({$in.id})">
 						<i class="layui-icon"></i>
 					</button>

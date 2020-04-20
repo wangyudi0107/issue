@@ -17,11 +17,11 @@ class Issue extends Controller{
 	public function index(){
 		//导入索引，验证登录
 		$this -> verify(4,0);
+		// 根据传递标题进行模糊搜索
 		$where=[];
 		if(input('tittle')){
 			$where['issue'] = array('like','%'.input('tittle').'%');
 		}
-		
 		$result = db('issue_list') -> where($where) -> order('id esc') -> paginate(10,false,['query'=>request()->param()]);
 		$page = $result -> render();  //获取分页
 		$this -> assign('intro',$result);
@@ -41,9 +41,11 @@ class Issue extends Controller{
 	
 	// 修改题目信息提交接口
 	public function issue_change_commit(){
+		// 接受传参
 		$data['issue'] = input('issue');
 		$data['option'] = input('option');
 		$data['true_option'] = input('true_option');
+		// 根据id进行更新
 		$result = db('issue_list') ->where('id',input('id')) -> update($data);
 		if($result){
 			echo json_encode(array('status'=>1,"msg"=> '修改成功'));exit;
@@ -77,14 +79,14 @@ class Issue extends Controller{
 	public function issue_record(){
 		//导入索引，验证登录
 		$this -> verify(4,1);
+		// 根据传参模糊搜索
 		$where=[];
 		if(input('name')){
-			$where['name'] = array('like','%'.input('tittle').'%');
+			$where['name'] = array('like','%'.input('name').'%');
 		}
 		if(input('phone')){
-			$where['phone'] = array('like','%'.input('tittle').'%');
+			$where['phone'] = array('like','%'.input('phone').'%');
 		}
-		
 		$result = db('issue_user') -> where($where) -> order('id esc') -> paginate(10,false,['query'=>request()->param()]);
 		$page = $result -> render();  //获取分页
 		$this -> assign('intro',$result);
@@ -108,7 +110,6 @@ class Issue extends Controller{
 		$this -> verify(4,2);
 		$result = db('issue_red_pack') -> where($where) -> order('id esc') ->select();
 		$this -> assign('intro',$result);
-		
 		return view();
 	}
 	
@@ -128,20 +129,22 @@ class Issue extends Controller{
 		}
 	}
 	
-	// 题目信息修改信息获取接口
+	// 修改红包获取信息接口
 	public function red_pack_edit(){
 		$result = db('issue_red_pack') -> where('id',input('id')) -> find();
 		echo json_encode($result);exit;
 	}
 	
-	// 红包信息提交接口
+	// 红包信息更改提交接口
 	public function red_pack_change_commit(){
+		// 获取变更值
 		$data['name'] = input('name');
 		$data['money'] = input('money');
 		$data['num'] = input('num');
 		$data['residual_amount'] = input('residual_amount');
 		$data['residual_num'] = input('residual_num');
 		$data['status'] = input('status');
+		// 根据id进行更新
 		$result = db('issue_red_pack') ->where('id',input('id')) -> update($data);
 		if($result){
 			echo json_encode(array('status'=>1,"msg"=> '修改成功'));exit;
