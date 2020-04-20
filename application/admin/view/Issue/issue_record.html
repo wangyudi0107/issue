@@ -30,6 +30,7 @@
 		<col width="">
 		<col width="70">
 		<col width="70">
+		<col width="200">
 		<col width="100">
 	</colgroup>
 	<thead>
@@ -51,6 +52,9 @@
 			</th>
 			<th>
 				<div class="layui-table-cell content">领取红包</div>
+			</th>
+			<th>
+				<div class="layui-table-cell content">答题时间</div>
 			</th>
 			<th>
 				<div class="layui-table-cell content">操作</div>
@@ -77,6 +81,9 @@
 			</td>
 			<td>
 				<div class="layui-table-cell content">{$in.red_packet/100}元</div>
+			</td>
+			<td>
+				<div class="layui-table-cell content">{$in.date|date='Y-m-d H:m:s',###}</div>
 			</td>
 			<td>
 				<div class="layui-table-cell content">
