@@ -94,6 +94,7 @@
 			<!-- <a ><i class="mui-icon mui-icon-back"></i></a> -->
 			<h1 class="mui-title">php知识点问答</h1>
 		</header>
+		<!-- 底部选项卡 -->
 		<nav class="mui-bar mui-bar-tab">
 			<a class="mui-tab-item mui-active" href="#tabbar">
 				<span class="mui-icon mui-icon-home"></span>
@@ -104,28 +105,44 @@
 				<span class="mui-tab-label">我的</span>
 			</a>
 		</nav>
+		<!-- 底部选项卡 -->
+		<!-- 标签页内容 -->
 		<div class="mui-content">
+			<!-- 首页答题页 开始 -->
 			<div id="tabbar" class="mui-control-content mui-active">
+				<!-- 答题用户记录id -->
 				<input type="hidden" name="" id="this_userInfo" value="" />
+				<!-- 红包图片 -->
 				<img id='red_pack' src="__STATIC__/img/red_pack.png" onclick="open_pack()"/>
+				<!-- 问题内容区域 -->
 				<div id="answer">
 					<div class="mui-content-padded">
+						<!-- 题目标题 -->
 						<h4 id="issue_tittle"></h4>
 					</div>
 					<div class="mui-card">
+						<!-- 正确答案 -->
 						<input type="hidden" name="" id="true" value="" />
+						<!-- 选项 -->
 						<form class="mui-input-group" id="answer_list">
 
 						</form>
+						<!-- 选项 -->
 					</div>
 					<button type="button" class="mui-btn mui-btn-danger mui-btn-block" onclick="next()">下一题</button>
 				</div>
+				<!-- 问题内容区域 -->
+				<!-- 开始答题按钮 -->
 				<div id="start_answer">
 					<button type="button" class="mui-btn mui-btn-warning mui-btn-block" onclick="start_answer()">开始答题</button>
 				</div>
+				<!-- 开始答题按钮 -->
 			</div>
+			<!-- 首页答题页 结束 -->
 			<!-- **************************************************************** -->
+			<!-- 答题记录页 -->
 			<div id="tabbar-with-contact" class="mui-control-content">
+				<!-- 用户名 -->
 				<div class="title">{$Think.cookie.name}</div>
 				<div class="mui-card">
 					<div class="mui-card-header">答题记录</div>
@@ -140,14 +157,11 @@
 										<th>时间</th>
 									</tr>
 								</thead>
+								<!-- 答题记录 -->
 								<tbody id="record_table">
-									<tr>
-										<td>100</td>
-										<td style="color: deepskyblue;">0.55</td>
-										<td>已取</td>
-										<td>04/18 11:11</td>
-									</tr>
+									
 								</tbody>
+								<!-- 答题记录 -->
 								<tfoot>
 									<tr style="border: 0;height: 25px;">
 										<td colspan="4">没有更多信息了~</td>
@@ -161,17 +175,20 @@
 					</div>
 				</div>
 			</div>
+			<!-- 答题记录页 -->
 		</div>
+		<!-- 标签页内容 -->
 	</body>
 	<script>
 		mui.init({
 			swipeBack: true //启用右滑关闭功能
 		});
-		
+		// 声明索引:a  问题数组:issue_arr  分数:sorce
 		var a = 0;
 		var issue_arr = [];
 		var sorce = 0;
 		
+		// 开始答题函数
 		function start_answer(){
 			$.ajax({
 				type: 'post',
@@ -179,24 +196,29 @@
 				dataType: 'JSON', //和控制器转换对应
 				data: {},
 				success: function(data) {
+					// 判断今日是否答题
 					if(data.status==1){
 						mui.alert('明天再来吧', '今天已经答过！', function() {
 						});
 					}else{
+						// 获取题目
 						$.ajax({
 							type: 'post',
 							url: "{:url('issue/index/get_issue')}",
 							dataType: 'JSON', //和控制器转换对应
 							data: {},
 							success: function(data) {
+								// 重新声明索引:a  问题数组:issue_arr  分数:sorce,
+								// 恢复默认
 								a = 0;
 								sorce = 0;
 								issue_arr=[];
-								
+								// 赋值问题数组
 								issue_arr = data.issue;
-
+								// 隐藏开始按钮、显示答题区域
 								$("#start_answer").css('display','none');
 								$("#answer").css('display','block');
+								// 调用答题内容输出函数
 								issue();
 							},
 							error: function(e) {
@@ -213,28 +235,32 @@
 			})
 		}
 		
-		
+		// 答题内容输出函数
 		function issue() {
+			// 清空标题、正确答案、选项
 			$("#issue_tittle").text(null);
 			$("#true").val(null);
 			$("#answer_list").text(null);
-
+			// 赋值标题、正确答案、选项
 			$("#issue_tittle").text((a + 1) + '、' + issue_arr[a].issue);
 			$("#true").val(issue_arr[a].true_option);
+			// 循环输出选项数组
 			for (var i = 0; i < issue_arr[a].option.length; i++) {
 				option = '<div class="mui-input-row mui-radio mui-left"><label>' + issue_arr[a].option[i][0] + '、' + issue_arr[a].option[
 					i][1] + '</label><input name="radio1" type="radio" value="' + issue_arr[a].option[i][0] + '"></div>'
 				$("#answer_list").append(option);
 			}
-			a++
+			a++;	// 索引自增
 		}
 
-
+		// 跳转下一题函数
 		function next() {
+			// 获取选择的内容与正确答案比对
 			var checkVal = $("input[name='radio1']:checked").val();
 			var trueVal = $("#true").val();
-
+			// 如果索引小于数组长度,接着下一题
 			if (a < issue_arr.length) {
+				// 如果是正确答案,分数+1
 				if (checkVal == trueVal) {
 					sorce++;
 					mui.alert('点击确定进入下一题', '恭喜你！回答正确！', function() {
@@ -246,15 +272,19 @@
 					});
 				}
 			} else {
+				// 索引不小于数组长度
+				// 问题答完判定分数，抽红包
+				
+				// 如果是正确答案,分数+1
 				if (checkVal == trueVal) {
 					sorce++;
 				}
-				
+				// 获取答题的id
 				issue_id='';
 				for(var i=0;i<issue_arr.length;i++){
 					issue_id += issue_arr[i].id + ',';
 				}
-				console.log(issue_id)
+				// 将分数与答题数组传入后台与cookie一起统计用户答题信息
 				$.ajax({
 					type: 'post',
 					url: "{:url('issue/index/insert_user_info')}",
@@ -264,10 +294,13 @@
 						sorce:sorce*10,
 					},
 					success: function(data) {
+						// 赋值答题信息自增id
 						$("#this_userInfo").val(data.user_info_id);
 						if(data.status==1){
+							// 分数大于6则可以抽取红包
 							if (sorce >= 6) {
 								mui.alert('点击确定拆红包', '本次的成绩是' + sorce * 10, function() {
+									// 显示红包
 									$("#red_pack").css('display','block');
 									$("#red_pack").css('opacity',1);
 								});
@@ -289,7 +322,9 @@
 			}
 		}
 		
+		// 点击红包获取红包函数
 		function open_pack(){
+			// 传入答题自增id,后台绑定抢到红包并减少总红包数量与金额
 			$.ajax({
 				type: 'post',
 				url: "{:url('issue/index/open_pack')}",
@@ -312,7 +347,7 @@
 			})
 		}
 		
-		
+		// 答题记录函数
 		function record(){
 			$.ajax({
 				type: 'post',
@@ -320,9 +355,10 @@
 				dataType: 'JSON', //和控制器转换对应
 				data: {},
 				success: function(data) {
-					
+					// 清空答题记录表格内容
 					$('#record_table').text(null);
 					var record_arr = data.data;
+					// 循环输出答题信息
 					for(var i=0;i<data.data.length;i++){
 						var sorce = '<td>'+record_arr[i].sorce+'</td>';
 						var date = '<td>'+record_arr[i].date+'</td>';
@@ -343,6 +379,7 @@
 				}
 			})
 		}
+		// 调用获取答题记录函数
 		record();
 	</script>
 
