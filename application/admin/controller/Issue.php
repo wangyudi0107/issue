@@ -26,7 +26,7 @@ class Issue extends Controller{
 		$page = $result -> render();  //获取分页
 		$this -> assign('intro',$result);
 		$this -> assign('page',$page);
-		return view();
+		return view('Issue/index');
 	}
 	
 	// 添加题目接口
@@ -87,11 +87,11 @@ class Issue extends Controller{
 		if(input('phone')){
 			$where['phone'] = array('like','%'.input('phone').'%');
 		}
-		$result = db('issue_user') -> where($where) -> order('id esc') -> paginate(10,false,['query'=>request()->param()]);
+		$result = db('issue_user') -> where($where) -> order('id desc') -> paginate(10,false,['query'=>request()->param()]);
 		$page = $result -> render();  //获取分页
 		$this -> assign('intro',$result);
 		$this -> assign('page',$page);
-		return view();
+		return view('Issue/issue_record');
 	}
 	
 	//用户答题信息删除接口
@@ -110,7 +110,7 @@ class Issue extends Controller{
 		$this -> verify(4,2);
 		$result = db('issue_red_pack') -> where($where) -> order('id esc') ->select();
 		$this -> assign('intro',$result);
-		return view();
+		return view('Issue/red_pack_set');
 	}
 	
 	// 红包信息删除

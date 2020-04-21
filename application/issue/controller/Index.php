@@ -11,7 +11,8 @@ class Index extends Controller
 		// 验证cookie是否开启，没有则前往登录
 		if(cookie('name') == null || cookie('phone') == null)
 		{
-			return view('login');
+			echo "<script>location.href='".url('issue/index/login_page')."'</script>";
+			exit;
 		}
 	}
 	// 登录接口,开启cookie以备答题提交 接口
@@ -19,6 +20,10 @@ class Index extends Controller
 		cookie('name',input('name'),18000);
 		cookie('phone',input('phone'),18000);
 		echo json_encode(array('status'=>(int)1,'msg'=>'登录成功'));exit;
+	}
+	// 登录页面
+	public function login_page(){
+		return view('login');
 	}
 	
 	// 答题主页
@@ -96,13 +101,18 @@ class Index extends Controller
 				if($money<=0||$num<=0){
 					echo json_encode(array('status'=>(int)2,'msg'=>'红包已发完'));exit;
 				}else{
-					$data = $this -> checked($money,$num);
-					// 更新用户答题获得红包
-					db('issue_user') -> where('id',input('id')) -> update(['red_packet'=>$data['get_money']*100]);
-					// 红包金额递减、红包数量递减
-					db('issue_red_pack') -> where('id',1) -> setDec('residual_amount',$data['get_money']*100);
-					db('issue_red_pack') -> where('id',1) -> setDec('residual_num');
-					echo json_encode(array('status'=>(int)1,'get_money'=>$data['get_money'],'data'=>$data));exit;
+					$user_red_pack = db('issue_user') -> where('id',input('id')) -> value('red_packet');
+					if($user_red_pack<=0){
+						$data = $this -> checked($money,$num);
+						// 更新用户答题获得红包
+						db('issue_user') -> where('id',input('id')) -> update(['red_packet'=>$data['get_money']*100]);
+						// 红包金额递减、红包数量递减
+						db('issue_red_pack') -> where('id',1) -> setDec('residual_amount',$data['get_money']*100);
+						db('issue_red_pack') -> where('id',1) -> setDec('residual_num');
+						echo json_encode(array('status'=>(int)1,'get_money'=>$data['get_money'],'data'=>$data));exit;
+					}else{
+						echo json_encode(array('status'=>(int)3,'msg'=>'您已抢过红包'));exit;
+					}
 				}
 		}
 	}
