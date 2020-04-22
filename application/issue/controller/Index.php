@@ -146,7 +146,7 @@ class Index extends Controller
 	
 	// 获取用户答题记录 接口
 	public function get_record(){
-		$result = db('issue_user') -> where('name',cookie('name')) -> where('phone',cookie('phone')) -> select();
+		$result = db('issue_user') -> where('name',cookie('name')) -> where('phone',cookie('phone')) -> order('date desc') -> select();
 		// 遍历时间转换
 		foreach($result as $k=>$v){
 			$result[$k]['date'] = date('m/d H:i',$result[$k]['date']);
