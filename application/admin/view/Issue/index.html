@@ -250,7 +250,7 @@ function add_option(){
 		$("#option").append(option);		//添加输入框
 		// 正确答案选项增加
 		var true_option = '<option value="'+option_num[option_arr]+'">'+option_num[option_arr]+'</option>';
-		$("#true").append(true_option);		//添加正确答案下拉狂
+		$("#true").append(true_option);		//添加正确答案下拉框
 		layui.use('form', function(){		//更新form表单状态
 		  var form = layui.form; 
 		  form.render();

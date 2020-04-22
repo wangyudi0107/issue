@@ -119,7 +119,7 @@
 		<script>
 			function login(){
 				// 验证手机号
-				var Verify_phone = /^[1][3,4,5,7,8][0-9]{9}$/;
+				var Verify_phone = /^[1][3,4,5,6,7,8,9][0-9]{9}$/;
 				var Verify_account = /^[\u4e00-\u9fa5]{2,6}$/;
 				
 				var account = $("#account").val();
@@ -148,7 +148,7 @@
 					})
 					
 				}else{
-					mui.toast('账号或手机号错误');
+					mui.toast('姓名或手机号错误');
 				}
 			}
 		</script>
